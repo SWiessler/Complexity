@@ -122,7 +122,19 @@ function complexity(filePath)
 			builder.FunctionName = functionName(node);
 			builder.StartLine    = node.loc.start.line;
 
-
+			//Problem 3a & 3b, complexity counter and max conditions
+			var conditions = new Array();
+			traverseWithParents(node, function(node){
+				if(isDecision(node)){
+					builder.SimpleCyclomaticComplexity ++;
+					//helper function implementation
+					var current = countConditions(node);
+					conditions.push(current);
+				}
+			});
+			if(!(conditions.length == 0)){
+				builder.MaxConditions = Math.max.apply(Math, conditions);
+			}
 
 			//Problem 2a, parameter count
 			builder.ParameterCount = node.params.length;
@@ -159,6 +171,16 @@ function childrenLength(node)
 	return count;
 }
 
+//helper for condition count
+function countConditions(node){
+	let counter = 0;
+	traverseWithParents(node, function(node){
+		if(node.operator == '&&' || node.operator == '||'){
+				counter++;
+		}
+	});
+	return counter;
+}
 
 // Helper function for checking if a node is a "decision type node"
 function isDecision(node)
